@@ -31,21 +31,21 @@ namespace LitJson
         #region Fields
         private delegate bool StateHandler (FsmContext ctx);
 
-        private static int[]          fsm_return_table;
-        private static StateHandler[] fsm_handler_table;
+        private static readonly int[]          fsm_return_table;
+        private static readonly StateHandler[] fsm_handler_table;
 
-        private bool          allow_comments;
-        private bool          allow_single_quoted_strings;
-        private bool          end_of_input;
-        private FsmContext    fsm_context;
-        private int           input_buffer;
-        private int           input_char;
-        private TextReader    reader;
-        private int           state;
-        private StringBuilder string_buffer;
-        private string        string_value;
-        private int           token;
-        private int           unichar;
+        private bool                    allow_comments;
+        private bool                    allow_single_quoted_strings;
+        private bool                    end_of_input;
+        private readonly FsmContext     fsm_context;
+        private int                     input_buffer;
+        private int                     input_char;
+        private readonly TextReader     reader;
+        private int                     state;
+        private readonly StringBuilder  string_buffer;
+        private string                  string_value;
+        private int                     token;
+        private int                     unichar;
         #endregion
 
 
@@ -76,61 +76,6 @@ namespace LitJson
 
         #region Constructors
         static Lexer ()
-        {
-            PopulateFsmTables ();
-        }
-
-        public Lexer (TextReader reader)
-        {
-            allow_comments = true;
-            allow_single_quoted_strings = true;
-
-            input_buffer = 0;
-            string_buffer = new StringBuilder (128);
-            state = 1;
-            end_of_input = false;
-            this.reader = reader;
-
-            fsm_context = new FsmContext ();
-            fsm_context.L = this;
-        }
-        #endregion
-
-
-        #region Static Methods
-        private static int HexValue (int digit)
-        {
-            switch (digit) {
-            case 'a':
-            case 'A':
-                return 10;
-
-            case 'b':
-            case 'B':
-                return 11;
-
-            case 'c':
-            case 'C':
-                return 12;
-
-            case 'd':
-            case 'D':
-                return 13;
-
-            case 'e':
-            case 'E':
-                return 14;
-
-            case 'f':
-            case 'F':
-                return 15;
-
-            default:
-                return digit - '0';
-            }
-        }
-
-        private static void PopulateFsmTables ()
         {
             // See section A.1. of the manual for details of the finite
             // state machine.
@@ -195,6 +140,56 @@ namespace LitJson
                 0,
                 0
             };
+        }
+
+        public Lexer (TextReader reader)
+        {
+            allow_comments = true;
+            allow_single_quoted_strings = true;
+
+            input_buffer = 0;
+            string_buffer = new StringBuilder (128);
+            state = 1;
+            end_of_input = false;
+            this.reader = reader;
+
+            fsm_context = new FsmContext ();
+            fsm_context.L = this;
+        }
+        #endregion
+
+
+        #region Static Methods
+        private static int HexValue (int digit)
+        {
+            switch (digit) {
+            case 'a':
+            case 'A':
+                return 10;
+
+            case 'b':
+            case 'B':
+                return 11;
+
+            case 'c':
+            case 'C':
+                return 12;
+
+            case 'd':
+            case 'D':
+                return 13;
+
+            case 'e':
+            case 'E':
+                return 14;
+
+            case 'f':
+            case 'F':
+                return 15;
+
+            default:
+                return digit - '0';
+            }
         }
 
         private static char ProcessEscChar (int esc_char)
